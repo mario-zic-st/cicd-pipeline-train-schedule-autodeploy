@@ -60,7 +60,7 @@ pipeline {
             }
             steps {
                 script {
-                    def response = httpRequest "http://${KUBE_MASTER_IP}:8080"
+                    def response = httpRequest (url: "http://${KUBE_MASTER_IP}:8080", timeout: 30)
                     
                     if ( response.status != 200 ) {
                         error("Smoke test failed! Received response status ${response.status}")
