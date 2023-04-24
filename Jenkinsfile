@@ -85,6 +85,7 @@ pipeline {
     }
     post {
         cleanup {
+            println('Doing cleanup')
             // remove even if smoke test fails
             kubernetesDeploy(
                 kubeconfigId: 'kubeconfig',
