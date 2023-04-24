@@ -3,6 +3,7 @@ pipeline {
     environment {
         //be sure to replace "willbla" with your own Docker Hub username
         DOCKER_IMAGE_NAME = "willbla/train-schedule"
+        KUBE_MASTER_IP = "54.166.70.50"
     }
     stages {
         stage('Build') {
@@ -53,6 +54,17 @@ pipeline {
                 )
             }
         }
+        stage('SmokeTest') {
+            steps {
+                script {
+                    def response = httpRequest "http://${KUBE_MASTER_IP}:8080"
+                    
+                    if ( response.status != 200 ) {
+                        error("Smoke test failed! Received response status ${response.status}")
+                    }
+                }
+            }
+        }
         stage('DeployToProduction') {
             when {
                 branch 'master'
@@ -61,7 +73,6 @@ pipeline {
                 CANARY_REPLICAS = 0
             }
             steps {
-                input 'Deploy to Production?'
                 milestone(1)
                 kubernetesDeploy(
                     kubeconfigId: 'kubeconfig',
